@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>YouTube Video Search</title>
+  <style>
+  body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+  }
+  #results {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+  }
+  #results div {
+    box-shadow: 0px 2px 6px rgba(0,0,0,0.2);
+    transition: transform 0.2s;
+  }
+  #results div:hover {
+    transform: scale(1.02);
+  }
+</style>
+
+</head>
+<body>
+  <h1>🔎 YouTube Video Search</h1>
+  <input type="text" id="query" placeholder="Type a topic...">
+  <button onclick="search()">Search</button>
+
+  <!-- Results will show up here -->
+  <div id="results"></div>
+
+  <script>
+  
+  async function search() {
+    let query = document.getElementById("query").value;
+    if (!query) {
+      alert("Please type something!");
+      return;
+    }
+
+    let response = await fetch(`http://127.0.0.1:5000/search?q=${encodeURIComponent(query)}`);
+    let data = await response.json();
+
+    let resultsDiv = document.getElementById("results");
+    resultsDiv.innerHTML = "";
+
+    if (!Array.isArray(data)) {
+      resultsDiv.innerHTML = `<p style="color:red;">Error: ${data.error || "Something went wrong"}</p>`;
+      return;
+    }
+
+    data.forEach(video => {
+      resultsDiv.innerHTML += `
+        <div style="border:1px solid #ccc; border-radius:10px; padding:10px; margin:10px; max-width:400px;">
+          <img src="${video.thumbnail}" alt="Thumbnail" style="width:100%; border-radius:10px;">
+          <h3>${video.title}</h3>
+          <p><b>Channel:</b> ${video.channel}</p>
+          <a href="${video.link}" target="_blank" style="color:blue;">▶ Watch</a>
+        </div>
+      `;
+    });
+  }
+</script>
+
+</body>
+</html>
